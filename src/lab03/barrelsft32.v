@@ -23,9 +23,9 @@
 module barrelsft32(
       output [31:0] dout,
       input [31:0] din,
-      input [4:0] shamt,     //ÒÆ¶¯Î»Êı
-      input LR,           // LR=1Ê±×óÒÆ£¬LR=0Ê±ÓÒÒÆ
-      input AL            // AL=1Ê±ËãÊõÓÒÒÆ£¬AR=0Ê±Âß¼­ÓÒÒÆ
+      input [4:0] shamt,     //ç§»åŠ¨ä½æ•°
+      input LR,           // LR=1æ—¶å·¦ç§»ï¼ŒLR=0æ—¶å³ç§»
+      input AL            // AL=1æ—¶ç®—æœ¯å³ç§»ï¼ŒAR=0æ—¶é€»è¾‘å³ç§»
 	);
 //add your code here
 
