@@ -21,15 +21,63 @@
 
 
 module ALU32_top(
-output [6:0] segs,           //Æß¶ÎÊıÂë¹Ü×ÖĞÎÊä³ö
-output [7:0] AN,            //Æß¶ÎÊıÂë¹ÜÏÔÊ¾32Î»ÔËËã½á¹û 
-output  [15:0] result_l,       //32Î»ÔËËã½á¹û
-output  zero,             //½á¹ûÎª0±êÖ¾Î»
-input   [3:0] data_a,           //4Î»Êı¾İÊäÈë£¬ÖØ¸´8´ÎºóËÍµ½ALU¶Ë¿ÚA   
-input   [3:0] data_b,           //4Î»Êı¾İÊäÈë£¬ÖØ¸´8´ÎºóËÍµ½ALU¶Ë¿ÚB  
-input   [3:0] aluctr,        //4Î»ALU²Ù×÷¿ØÖÆĞÅºÅ
-input   clk
-); 
-//add your code here
+    output [6:0] segs,           //ä¸ƒæ®µæ•°ç ç®¡å­—å½¢è¾“å‡º
+    output [7:0] AN,            //ä¸ƒæ®µæ•°ç ç®¡æ˜¾ç¤º32ä½è¿ç®—ç»“æœ 
+    output  [15:0] result_l,       //32ä½è¿ç®—ç»“æœ
+    output  zero,             //ç»“æœä¸º0æ ‡å¿—ä½
+    input   [3:0] data_a,           //4ä½æ•°æ®è¾“å…¥ï¼Œé‡å¤8æ¬¡åé€åˆ°ALUç«¯å£A   
+    input   [3:0] data_b,           //4ä½æ•°æ®è¾“å…¥ï¼Œé‡å¤8æ¬¡åé€åˆ°ALUç«¯å£B  
+    input   [3:0] aluctr,        //4ä½ALUæ“ä½œæ§åˆ¶ä¿¡å·
+    input   clk
+    ); 
+
+    reg [3:0] dis_cur;
+    reg [3:0] dis_pos;
+    dec7seg led_driver(segs, AN, dis_cur, dis_pos);
+
+    reg [31:0] result_32;
+
+    assign result_l = result_32[15:0];
+
+    wire [31:0] dataa;
+    wire [31:0] datab;
+    assign dataa = {8{data_a}};
+    assign datab = {8{data_b}};
+
+    ALU32 alu(result_32, zero, dataa, datab, aluctr);
+
+    //display buffer
+    wire [3:0] display_buffer [0:7];
+    assign display_buffer[0] = result_32[3:0];
+    assign display_buffer[1] = result_32[7:4];
+    assign display_buffer[2] = result_32[11:8];
+    assign display_buffer[3] = result_32[15:12];
+    assign display_buffer[4] = result_32[19:16];
+    assign display_buffer[5] = result_32[23:20];
+    assign display_buffer[6] = result_32[27:24];
+    assign display_buffer[7] = result_32[32:28];
+    reg [15:0] trans;
+    reg [3:0] dis_cnt;
+
+    //Display driving loop
+    always @(posedge clk) begin
+        //Transfer clk signal to acceptable fresh rate.
+        if(trans >= 16'd50000)
+            trans <= 0;
+        else
+            trans <= trans + 1;
+            
+        if(trans == 0) begin
+            if(dis_cnt >= 7)
+                dis_cnt <= 0;
+            else
+                dis_cnt <= dis_cnt + 1;
+        end
+        
+        //Display
+        dis_pos <= dis_cnt;
+        dis_cur <= display_buffer[dis_cnt];
+    end
+
 
 endmodule
