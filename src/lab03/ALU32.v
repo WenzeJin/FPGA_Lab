@@ -80,6 +80,9 @@ module ALU32(
             4'b0110: begin
                 _result = dataa | datab;
             end
+            4'b0111: begin
+                _result = dataa & datab;
+            end
             4'b1000: begin  //sub
                 sub = 1;
                 _result = adder_result;

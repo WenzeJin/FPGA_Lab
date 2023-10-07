@@ -35,7 +35,7 @@ module ALU32_top(
     reg [3:0] dis_pos;
     dec7seg led_driver(segs, AN, dis_cur, dis_pos);
 
-    reg [31:0] result_32;
+    wire [31:0] result_32;
 
     assign result_l = result_32[15:0];
 
@@ -55,7 +55,7 @@ module ALU32_top(
     assign display_buffer[4] = result_32[19:16];
     assign display_buffer[5] = result_32[23:20];
     assign display_buffer[6] = result_32[27:24];
-    assign display_buffer[7] = result_32[32:28];
+    assign display_buffer[7] = result_32[31:28];
     reg [15:0] trans;
     reg [3:0] dis_cnt;
 
