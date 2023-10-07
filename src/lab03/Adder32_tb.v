@@ -1,5 +1,4 @@
 `timescale 1ns / 1ps
-`include "src/lab03/Adder32.v" //在Vivado中注释掉
 //////////////////////////////////////////////////////////////////////////////////
 // Company: 
 // Engineer: 
@@ -23,7 +22,7 @@
 
 module Adder32_tb(    );
   parameter N = 32;      // Operand widths
-  parameter SEED = 1;    // Change for a different random sequence
+  reg [31:0] SEED = 1;    // Change for a different random sequence
   reg [N-1:0] A, B;
   reg CIN;
   wire [N-1:0] S;
@@ -33,7 +32,8 @@ module Adder32_tb(    );
   reg xpectCF;
   reg [N-1:0] xpectS;
 
-   Adder32 adder_inst(.f(S),.OF(OF),.SF(SF),.ZF(ZF),.CF(CF),.cout(COUT),.x(A),.y(B),.sub(CIN));
+  Adder32 adder_inst(.f(S),.OF(OF),.SF(SF),.ZF(ZF),.CF(CF),.cout(COUT),.x(A),.y(B),.sub(CIN));
+  
   task checkadd;
     begin
        {xpectCF,xpectS} = (CIN ? (A-B):(A+B));          //Verilog 加减运算结果比操作数增加1位，表示进位和借位。CIN=1表示减法运算

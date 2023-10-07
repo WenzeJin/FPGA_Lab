@@ -27,7 +27,16 @@ module Adder32(
     input [31:0] x, y,
     input sub
 	);
-//add your code here
+
+    wire carry;
+    wire [31:0] real_y;
+    assign real_y = sub ? ~y : y ;
+    CLA_16 cla16_0(f[15:0], carry, x[15:0], real_y[15:0], sub);
+    CLA_16 cla16_1(f[31:16], cout, x[31:16], real_y[31:16], carry);
+    assign ZF = (f == 32'd0);
+    assign SF = f[31];
+    assign CF = sub ^ cout;
+    assign OF = ~x[31] & ~y[31] & f[31] | x[31] & y[31] & ~f[31];
 
 endmodule
 
