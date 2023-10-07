@@ -1,5 +1,4 @@
 `timescale 1ns / 1ps
-`include "src/lab03/ALU32.v" //在Vivado中注释掉
 //////////////////////////////////////////////////////////////////////////////////
 // Company: 
 // Engineer: 
@@ -23,7 +22,7 @@
 
 module ALU32_tb(    );
   parameter N = 32;               // 定义位宽
-  parameter SEED = 1;              // 定义不同的随机序列
+  reg [31:0] SEED = 1;              // 定义不同的随机序列
   wire [N-1:0] Result;              //32位运算结果
   wire zero;                         //结果为0标志位
   reg [N-1:0]  Data_A, Data_B;     //32位数据输入,送到ALU端口A

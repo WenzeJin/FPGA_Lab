@@ -36,7 +36,7 @@ module Adder32(
     assign ZF = (f == 32'd0);
     assign SF = f[31];
     assign CF = sub ^ cout;
-    assign OF = ~x[31] & ~y[31] & f[31] | x[31] & y[31] & ~f[31];
+    assign OF = (~x[31] & ~y[31] & f[31]) | (x[31] & y[31] & ~f[31]);
 
 endmodule
 
