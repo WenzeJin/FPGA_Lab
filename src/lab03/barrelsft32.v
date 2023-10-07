@@ -28,7 +28,8 @@ module barrelsft32(
     input AL            // AL=1时算术右移，AR=0时逻辑右移
 	);
 
-
-
+    wire [31:0] ALR;
+    assign ALR = din[31] ? (din >> shamt) | (32'hFFFFFFFF << (32 - shamt)) : din >> shamt;
+    assign dout = LR ? din << shamt : (AL ? ALR : din >> shamt);
 
 endmodule

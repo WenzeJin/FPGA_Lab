@@ -22,7 +22,7 @@
 
 module barrelsft32_tb( );
  parameter N = 32;      // Operand widths
- parameter SEED = 1;    // Change for a different random sequence
+ reg [31:0] SEED = 1;    // Change for a different random sequence
  wire [N-1:0] DOUT;
  reg signed [N-1:0] DIN;  //必须设置成带符号数，否则算术右移出错
  reg [4:0] SHAMT;      //移动位数
