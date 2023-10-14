@@ -22,7 +22,7 @@
 
 module mul_32k_tb(    );
   parameter N = 32;               // 定义位宽
-  parameter SEED = 1;              // 定义不同的随机序列
+  reg [31:0] SEED = 1;              // 定义不同的随机序列
   reg [N-1:0] X, Y;
   wire [2*N-1:0] P;
 

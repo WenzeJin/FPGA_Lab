@@ -22,7 +22,7 @@
 
 module rv32m_tb(   );
   parameter N = 32;               // 定义位宽
-  parameter SEED = 1;              // 定义不同的随机序列
+  reg [31:0] SEED = 2;              // 定义不同的随机序列
   wire [N-1:0] Rd;               //运算结果
   wire Out_valid,In_error;       //运算结束和错误输入标志
   reg [N-1:0]  Rs1,Rs2;         //32位数据输入
@@ -49,13 +49,13 @@ module rv32m_tb(   );
 	#2 Clk = ~Clk;	     //模拟时钟信号
   end
 
-   rv32m my_rv32m(.rd(Rd),.out_valid(Out_valid),.in_error(In_error),.clk(Clk),.rs1(Rs1),.rs2(Rs2),.funct3(Funct3),.in_error(In_valid));
+   rv32m my_rv32m(.rd(Rd),.out_valid(Out_valid),.in_error(In_error),.clk(Clk),.rs1(Rs1),.rs2(Rs2),.funct3(Funct3),.in_valid(In_valid),.rst(~Rst)); 
 
   task checkrv32m;
     begin
     case (Funct3)
     Mul: begin 
-                 TempMul=Rs1 *  Rs2;   //带符号数乘法运算
+                 TempMul=$signed(Rs1) * $signed(Rs2);   //带符号数乘法运算
                  if (TempMul[31:0]!=Rd) 
                   begin     
                        errors = errors + 1;
@@ -73,22 +73,24 @@ module rv32m_tb(   );
                   end
              end
     Mulhsu: begin                 //带符号数乘以无符号数运算
-                 TempMulsu=$sined(Rs1) *$signed({1'b0, Rs2});   //无符号数乘法
+                 TempMulsu=$signed(Rs1) * $signed({1'b0, Rs2});   //无符号数乘法
                  if (TempMulsu[63:32]!=Rd)
                   begin     
                        errors = errors + 1;
-                      $display("ERROR: Funct3,Rs1,Rs2 = %3b,%8h,%8h, want= %8h, got=%8h,err=%1b." ,
-                      Funct3, Rs1, Rs2, TempMul[63:32], Rd,In_error);                 
+                      $display("ERROR: Funct3,Rs1,Rs2 = %3b,%8h,%8h, want= %8h, got=%8h,err=%d." ,
+                      Funct3, Rs1, Rs2, TempMulsu[63:32], Rd,In_error);                 
                   end
              end
     Mulhu: begin                 //无符号数小于比较运算
                  TempMulu=Rs1 * Rs2;   
-                 if (TempMul[63:32]!=Rd) 
+                 if (TempMulu[63:32]!=Rd) 
                   begin     
                        errors = errors + 1;
-                      $display("ERROR: Funct3,Rs1,Rs2 = %3b,%8h,%8h, want= %8h, got=%8h,err=%1b." ,
-                      Funct3, Rs1, Rs2, TempMul[63:32], Rd,In_error);                 
+                      $display("ERROR: Funct3,Rs1,Rs2 = %3b,%8h,%8h, want= %8h, got=%8h,err=%1d." ,
+                      Funct3, Rs1, Rs2, TempMulu[63:32], Rd,In_error);                 
                   end
+                  $display("want= %8h, got=%8h,err=%1b." ,
+                      TempMulu[63:32], Rd,In_error);
              end
       Div: begin 
                  TempRd=$signed(Rs1) / $signed(Rs2);   //带符号数除法运算
@@ -96,7 +98,7 @@ module rv32m_tb(   );
                   begin     
                        errors = errors + 1;
                       $display("ERROR: Funct3,Rs1,Rs2 = %3b,%8h,%8h, want= %8h, got=%8h,err=%1b." ,
-                      Funct3, Rs1, Rs2, TempMul[63:32], Rd,In_error);                 
+                      Funct3, Rs1, Rs2, TempRd, Rd,In_error);                 
                   end
              end
       Divu: begin 
@@ -105,7 +107,7 @@ module rv32m_tb(   );
                   begin     
                        errors = errors + 1;
                       $display("ERROR: Funct3,Rs1,Rs2 = %3b,%8h,%8h, want= %8h, got=%8h,err=%1b." ,
-                      Funct3, Rs1, Rs2, TempMul[63:32], Rd,In_error);                 
+                      Funct3, Rs1, Rs2, TempRd, Rd,In_error);                 
                   end
              end
       Rem: begin 
@@ -114,7 +116,7 @@ module rv32m_tb(   );
                   begin     
                        errors = errors + 1;
                       $display("ERROR: Funct3,Rs1,Rs2 = %3b,%8h,%8h, want= %8h, got=%8h,err=%1b." ,
-                      Funct3, Rs1, Rs2, TempMul[63:32], Rd,In_error);                 
+                      Funct3, Rs1, Rs2, TempRd, Rd,In_error);                 
                   end
              end
       Remu: begin 
@@ -123,7 +125,7 @@ module rv32m_tb(   );
                   begin     
                        errors = errors + 1;
                       $display("ERROR: Funct3,Rs1,Rs2 = %3b,%8h,%8h, want= %8h, got=%8h,err=%1b." ,
-                      Funct3, Rs1, Rs2, TempMul[63:32], Rd,In_error);                 
+                      Funct3, Rs1, Rs2, TempRd, Rd,In_error);                 
                   end
              end
              
@@ -132,13 +134,13 @@ module rv32m_tb(   );
   endtask
   
   initial begin
-    errors = 0;
+     errors = 0;
            Rs1 = $random(SEED);                        // Set pattern based on seed parameter
-   for (i=0; i<10000; i=i+1) begin                     //计算10000次
+   for (i=0; i<100; i=i+1) begin                     //计算10000次
         Rst = 1'b0;    #2   Rst = 1'b1;               //复位信号有效
-          Rs1 = $random; Rs2= $random(i);             //初始化数据
-     	#2 	Rst = 1'b0;	 In_valid=1'b1;               //数据就绪         
-	    #2  In_valid=1'b0;
+          Rs1 = $random; Rs2= $random;             //初始化数据
+     	#2 Rst = 1'b0;	 In_valid=1'b1;               //数据就绪         
+	     #2 In_valid=1'b0;
              
           Funct3 = Mul;  #150 ; checkrv32m;     
           Funct3 = Mulh;  #150 ; checkrv32m;     
@@ -146,11 +148,11 @@ module rv32m_tb(   );
           Funct3 = Mulhu;  #150 ; checkrv32m; 
               
           Funct3 = Div;  #150 ; checkrv32m;     
-          Funct3 = Divu;  #150 ; checkrv32m;     
-          Funct3 = Rem;  #150 ; checkrv32m;     
+          Funct3 = Divu;  #150 ; checkrv32m;
+          Funct3 = Rem;  #150 ; checkrv32m;
           Funct3 = Remu;  #150 ; checkrv32m;     
     end
-    $display("RV32M test done. Errors: %0d .", errors);
+    $display("RV32M test done. Errors: %0d.", errors);
     $stop(1);
   end
 

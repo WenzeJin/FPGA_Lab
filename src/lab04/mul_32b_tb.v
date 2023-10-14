@@ -21,22 +21,22 @@
 
 
 module mul_32b_tb(   );
-  parameter N = 32;               // ¶¨ÒåÎ»¿í
-  parameter SEED = 1;              // ¶¨Òå²»Í¬µÄËæ»úĞòÁĞ
+  parameter N = 32;               // å®šä¹‰ä½å®½
+  reg [31:0] SEED = 1;              // å®šä¹‰ä¸åŒçš„éšæœºåºåˆ—
      reg clk, rst;
-     reg [N-1:0] x, y;
+     reg signed [N-1:0] x, y;
      reg in_valid;
      wire [2*N-1:0] p;
      wire  out_valid;
 
-  mul_32b my_mul_32u (.clk(clk),.rst(rst),.x(x),.y(y),.in_valid(in_valid),.p(p),.out_valid(out_valid)); // 
+  mul_32b my_mul_32u (.clk(clk),.rst_n(!rst),.x(x[31:0]),.y(y[31:0]),.in_valid(in_valid),.p(p),.out_valid(out_valid)); // 
   
-    reg [2*N-1:0] temp_P;
+   reg signed [2*N-1:0] temp_P;
    integer i, errors;
   task checkP;
     begin
       temp_P = x*y;
-      if (out_valid &&(temp_P !=p)) begin
+      if (out_valid &&(temp_P != p)) begin
         errors=errors+1;
         $display($time," Error: x=%8h, y=%8h, expected %16h (%d), got %16h (%d)",
                  x, y, temp_P, temp_P, p, p); 
@@ -55,14 +55,14 @@ module mul_32b_tb(   );
    begin	
     errors = 0;
            x = $random(SEED);                        // Set pattern based on seed parameter
-   for (i=0; i<10000; i=i+1) begin                //¼ÆËã10000´Î
+   for (i=0; i<10000; i=i+1) begin                //è®¡ç®—10000æ¬¡
         rst = 1'b0;
         #2
-        rst = 1'b1;                             //ÉÏµçºó1us¸´Î»ĞÅºÅ
+        rst = 1'b1;                             //ä¸Šç”µå1uså¤ä½ä¿¡å·
 	    x=$random; y=$random;
      	#2
     	rst = 1'b0;	
-	    in_valid=1'b1;                        //³õÊ¼»¯Êı¾İ
+	    in_valid=1'b1;                        //åˆå§‹åŒ–æ•°æ®
 	    #5
 	    in_valid=1'b0;
 	    #150;	                          // wait 150 ns, then check result

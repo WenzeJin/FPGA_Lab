@@ -1,0 +1,100 @@
+#! /opt/homebrew/Cellar/icarus-verilog/12.0/bin/vvp
+:ivl_version "12.0 (stable)";
+:ivl_delay_selection "TYPICAL";
+:vpi_time_precision - 12;
+:vpi_module "/opt/homebrew/Cellar/icarus-verilog/12.0/lib/ivl/system.vpi";
+:vpi_module "/opt/homebrew/Cellar/icarus-verilog/12.0/lib/ivl/vhdl_sys.vpi";
+:vpi_module "/opt/homebrew/Cellar/icarus-verilog/12.0/lib/ivl/vhdl_textio.vpi";
+:vpi_module "/opt/homebrew/Cellar/icarus-verilog/12.0/lib/ivl/v2005_math.vpi";
+:vpi_module "/opt/homebrew/Cellar/icarus-verilog/12.0/lib/ivl/va_math.vpi";
+S_0x14c7055c0 .scope module, "mul_32k_tb" "mul_32k_tb" 2 23;
+ .timescale -9 -12;
+P_0x14c705230 .param/l "N" 0 2 24, +C4<00000000000000000000000000100000>;
+v0x14c719f10_0 .net "P", 63 0, L_0x14c71a590;  1 drivers
+v0x14c719fe0_0 .var "SEED", 31 0;
+v0x14c71a080_0 .var "X", 31 0;
+v0x14c71a150_0 .var "Y", 31 0;
+v0x14c71a200_0 .var/i "i", 31 0;
+S_0x14c704590 .scope begin, "TB" "TB" 2 41, 2 41 0, S_0x14c7055c0;
+ .timescale -9 -12;
+S_0x14c704700 .scope module, "UUT" "mul_32k" 2 29, 3 26 0, S_0x14c7055c0;
+ .timescale -9 -12;
+    .port_info 0 /INPUT 32 "X";
+    .port_info 1 /INPUT 32 "Y";
+    .port_info 2 /OUTPUT 64 "P";
+v0x14c705780_0 .net "P", 63 0, L_0x14c71a590;  alias, 1 drivers
+v0x14c719800_0 .net "X", 31 0, v0x14c71a080_0;  1 drivers
+v0x14c7198b0_0 .net "Y", 31 0, v0x14c71a150_0;  1 drivers
+v0x14c719970_0 .net *"_ivl_0", 63 0, L_0x14c71a2e0;  1 drivers
+L_0x140068010 .functor BUFT 1, C4<00000000000000000000000000000000>, C4<0>, C4<0>, C4<0>;
+v0x14c719a20_0 .net *"_ivl_3", 31 0, L_0x140068010;  1 drivers
+v0x14c719b10_0 .net *"_ivl_4", 63 0, L_0x14c71a450;  1 drivers
+L_0x140068058 .functor BUFT 1, C4<00000000000000000000000000000000>, C4<0>, C4<0>, C4<0>;
+v0x14c719bc0_0 .net *"_ivl_7", 31 0, L_0x140068058;  1 drivers
+L_0x14c71a2e0 .concat [ 32 32 0 0], v0x14c71a080_0, L_0x140068010;
+L_0x14c71a450 .concat [ 32 32 0 0], v0x14c71a150_0, L_0x140068058;
+L_0x14c71a590 .arith/mult 64, L_0x14c71a2e0, L_0x14c71a450;
+S_0x14c719ca0 .scope task, "checkP" "checkP" 2 31, 2 31 0, S_0x14c7055c0;
+ .timescale -9 -12;
+v0x14c719e60_0 .var "temp_P", 63 0;
+TD_mul_32k_tb.checkP ;
+    %load/vec4 v0x14c71a080_0;
+    %pad/u 64;
+    %load/vec4 v0x14c71a150_0;
+    %pad/u 64;
+    %mul;
+    %store/vec4 v0x14c719e60_0, 0, 64;
+    %load/vec4 v0x14c719f10_0;
+    %load/vec4 v0x14c719e60_0;
+    %cmp/ne;
+    %jmp/0xz  T_0.0, 6;
+    %vpi_call 2 36 "$display", $time, " Error: X=%d, Y=%d, expected %d (%16H), got %d (%16H)", v0x14c71a080_0, v0x14c71a150_0, v0x14c719e60_0, v0x14c719e60_0, v0x14c719f10_0, v0x14c719f10_0 {0 0 0};
+    %vpi_call 2 37 "$stop", 32'sb00000000000000000000000000000001 {0 0 0};
+T_0.0 ;
+    %end;
+    .scope S_0x14c7055c0;
+T_1 ;
+    %pushi/vec4 1, 0, 32;
+    %store/vec4 v0x14c719fe0_0, 0, 32;
+    %end;
+    .thread T_1;
+    .scope S_0x14c7055c0;
+T_2 ;
+    %fork t_1, S_0x14c704590;
+    %jmp t_0;
+    .scope S_0x14c704590;
+t_1 ;
+    %vpi_func 2 43 "$random" 32, v0x14c719fe0_0 {0 0 0};
+    %store/vec4 v0x14c71a080_0, 0, 32;
+    %pushi/vec4 0, 0, 32;
+    %store/vec4 v0x14c71a200_0, 0, 32;
+T_2.0 ;
+    %load/vec4 v0x14c71a200_0;
+    %cmpi/s 10000, 0, 32;
+    %flag_or 5, 4;
+    %jmp/0xz T_2.1, 5;
+    %vpi_func 2 45 "$random" 32 {0 0 0};
+    %store/vec4 v0x14c71a080_0, 0, 32;
+    %vpi_func 2 45 "$random" 32 {0 0 0};
+    %store/vec4 v0x14c71a150_0, 0, 32;
+    %delay 10000, 0;
+    %fork TD_mul_32k_tb.checkP, S_0x14c719ca0;
+    %join;
+    %load/vec4 v0x14c71a200_0;
+    %addi 1, 0, 32;
+    %store/vec4 v0x14c71a200_0, 0, 32;
+    %jmp T_2.0;
+T_2.1 ;
+    %vpi_call 2 49 "$display", $time, " Test ended" {0 0 0};
+    %vpi_call 2 49 "$stop", 32'sb00000000000000000000000000000001 {0 0 0};
+    %end;
+    .scope S_0x14c7055c0;
+t_0 %join;
+    %end;
+    .thread T_2;
+# The file index is used to find the file name in the following table.
+:file_names 4;
+    "N/A";
+    "<interactive>";
+    "mul_32k_tb.v";
+    "mul_32k.v";

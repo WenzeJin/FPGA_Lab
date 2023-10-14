@@ -20,9 +20,9 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module div_32u_tb( );
+module div_32b_tb( );
   parameter N = 32;               // 定义位宽
-  parameter SEED = 1;              // 定义不同的随机序列
+  reg [31:0] SEED = 1;              // 定义不同的随机序列
      reg clk, rst;
      reg [N-1:0] x, y;
      reg in_valid;
@@ -30,7 +30,7 @@ module div_32u_tb( );
      wire  out_valid;
      wire  in_error;
 
-  div_32u my_div_32u (.Q(q),.R(r),.out_valid(out_valid),.in_error(in_error),.clk(clk),.rst(rst),.X(x),.Y(y),.in_valid(in_valid)); // 
+  div_32b my_div_32b (.Q(q),.R(r),.out_valid(out_valid),.in_error(in_error),.clk(clk),.rst(rst),.X(x),.Y(y),.in_valid(in_valid)); // 
   
     reg [N-1:0] temp_Q,temp_R;
    integer i, errors;

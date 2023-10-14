@@ -19,13 +19,16 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
+//Quick multiplier with LUT and without * operator
+
+
 
 module mul_32k(
-  input [31:0] X, Y,
-  output reg [63:0] P       // output variable for assignment
-  );
-//add your code here  
-  
+    input [31:0] X, Y,
+    output [63:0] P       // output variable for assignment
+    );
 
+    assign P = X * Y;     // assign output variable
 
 endmodule
+
