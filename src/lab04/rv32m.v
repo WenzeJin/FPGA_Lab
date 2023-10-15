@@ -28,7 +28,8 @@ module rv32m(
     wire valid_div_u;
     wire valid_div_b;
 
-    wire error_div;
+    wire error_divd;
+    wire error_divu;
 
     wire [63:0] ers1;
     wire [63:0] ers2;
@@ -50,8 +51,8 @@ module rv32m(
     assign in_error = error;
 
     mul_32u my_mul_32u(clk, rst, rs1, rs2, in_valid, mul_u, valid_mul_u);
-    div_32u my_div_32u(div_u_q, div_u_r, valid_div_u, error_div, clk, rst, rs1, rs2, in_valid);
-    div_32b my_div_32b(div_b_q, div_b_r, valid_div_b, error_div, clk, rst, rs1, rs2, in_valid); 
+    div_32u my_div_32u(div_u_q, div_u_r, valid_div_u, error_divu, clk, rst, rs1, rs2, in_valid);
+    div_32b my_div_32b(div_b_q, div_b_r, valid_div_b, error_divd, clk, rst, rs1, rs2, in_valid); 
     mul_32b my_mul_32b(mul_b, valid_mul_b, clk, rst, rs1, rs2, in_valid);
 
     always @(posedge clk or negedge rst) begin
@@ -65,10 +66,10 @@ module rv32m(
         3'b001: begin res <= mul_b[63:32]; valid <= valid_mul_b; error <= 0; end
         3'b010: begin res <= (ers1s * ers2) >> 32; valid <= valid_mul_u; error <= 0; end
         3'b011: begin res <= mul_u[63:32]; valid <= valid_mul_u; error <= 0; end
-        3'b100: begin res <= div_b_q; valid <= valid_div_b; error <= error_div; end
-        3'b101: begin res <= div_u_q; valid <= valid_div_u; error <= error_div; end
-        3'b110: begin res <= div_b_r; valid <= valid_div_b; error <= error_div; end
-        3'b111: begin res <= div_u_r; valid <= valid_div_u; error <= error_div; end
+        3'b100: begin res <= div_b_q; valid <= valid_div_b; error <= error_divd; end
+        3'b101: begin res <= div_u_q; valid <= valid_div_u; error <= error_divu; end
+        3'b110: begin res <= div_b_r; valid <= valid_div_b; error <= error_divd; end
+        3'b111: begin res <= div_u_r; valid <= valid_div_u; error <= error_divu; end
         endcase
     end
 
