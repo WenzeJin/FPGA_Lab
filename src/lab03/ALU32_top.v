@@ -79,5 +79,5 @@ module ALU32_top(
         dis_cur <= display_buffer[dis_cnt];
     end
 
-
+    
 endmodule
