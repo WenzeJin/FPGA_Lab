@@ -68,7 +68,7 @@ module div_32u(
                 if(cn > 0) begin
                     RDIV <= {RDIV[62:0], 1'b0};
                 end else begin
-                    RDIV <= {RDIV[63:31], RDIV[30:0], 1'b0};
+                    RDIV <= {RDIV[63:32], RDIV[30:0], 1'b0};
                     temp_out_valid <= 1'b1;
                 end
             end

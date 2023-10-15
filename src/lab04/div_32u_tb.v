@@ -43,7 +43,7 @@ module div_32u_tb( );
         $display($time," Error: x=%d, y=%d, expected Quot= %d, Rem=%d(%h),got Quot= %d,Rem=%d(%h)",
                  x, y, temp_Q,temp_R,temp_R, q,r, r); 
         end else begin
-        $display($time," Correct: x=%d, y=%d, expected Quot= %d, Rem=%d(%h),got Quot= %d,Rem=%d(%h)",
+        $display($time," \033[32;42mCorrect\033[0m: x=%d, y=%d, expected Quot= %d, Rem=%d(%h),got Quot= %d,Rem=%d(%h)",
                  x, y, temp_Q,temp_R,temp_R, q,r, r);
         end
     end
@@ -60,11 +60,11 @@ module div_32u_tb( );
    begin	
     errors = 0;
            x = $random(SEED);                        // Set pattern based on seed parameter
-   for (i=0; i<10000; i=i+1) begin                //计算10000次
+   for (i = 0; i < 10000; i = i + 1) begin                //计算10000次
         rst = 1'b0;
         #2
         rst = 1'b1;                             //上电后1us复位信号
-        x=$random; y=$random;
+        x = $random; y = $random;
 //	    x=0; y=1;
      	#2
     	rst = 1'b0;	
