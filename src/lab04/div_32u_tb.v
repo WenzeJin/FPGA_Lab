@@ -30,7 +30,7 @@ module div_32u_tb( );
      wire  out_valid;
      wire  in_error;
 
-  div_32u my_div_32u (.Q(q),.R(r),.out_valid(out_valid),.in_error(in_error),.clk(clk),.rst(rst),.X(x),.Y(y),.in_valid(in_valid)); // 
+  div_32u my_div_32u (.Q(q),.R(r),.out_valid(out_valid),.in_error(in_error),.clk(clk),.rst(~rst),.X(x),.Y(y),.in_valid(in_valid)); // 
   
     reg [N-1:0] temp_Q,temp_R;
    integer i, errors;
@@ -42,9 +42,10 @@ module div_32u_tb( );
         errors=errors+1;
         $display($time," Error: x=%d, y=%d, expected Quot= %d, Rem=%d(%h),got Quot= %d,Rem=%d(%h)",
                  x, y, temp_Q,temp_R,temp_R, q,r, r); 
-        end
+        end else begin
         $display($time," Correct: x=%d, y=%d, expected Quot= %d, Rem=%d(%h),got Quot= %d,Rem=%d(%h)",
                  x, y, temp_Q,temp_R,temp_R, q,r, r);
+        end
     end
   endtask
 

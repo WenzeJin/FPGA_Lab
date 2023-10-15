@@ -30,7 +30,9 @@ module Adder32(
 
     wire carry;
     wire [31:0] real_y;
-    assign real_y = sub ? ~y : y ;
+    wire [31:0] neg_y;
+    assign neg_y = 32'hFFFFFFFF ^ y;
+    assign real_y = sub ? neg_y : y ;
     CLA_16 cla16_0(f[15:0], carry, x[15:0], real_y[15:0], sub);
     CLA_16 cla16_1(f[31:16], cout, x[31:16], real_y[31:16], carry);
     assign ZF = (f == 32'd0);
