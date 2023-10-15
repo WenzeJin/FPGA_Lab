@@ -676,18 +676,18 @@ ALU32_tb.v:70: $stop(1) called at 500000000 (1ps)
 
 验证过程中的图片如下
 
-<img src="./image/1.png" alt="image1" style="zoom:50%;"/>
-<img src="./image/2.png" alt="image2" style="zoom:50%;"/>
-<img src="./image/3.png" alt="image3" style="zoom:50%;"/>
-<img src="./image/4.png" alt="image4" style="zoom:50%;"/>
-<img src="./image/5.png" alt="image5" style="zoom:50%;"/>
-<img src="./image/6.png" alt="image6" style="zoom:50%;"/>
-<img src="./image/7.png" alt="image7" style="zoom:50%;"/>
-<img src="./image/8.png" alt="image8" style="zoom:50%;"/>
-<img src="./image/9.png" alt="image9" style="zoom:50%;"/>
-<img src="./image/10.png" alt="image10" style="zoom:50%;"/>
-<img src="./image/11.png" alt="image11" style="zoom:50%;"/>
-<img src="./image/12.png" alt="image12" style="zoom:50%;"/>
+<img src="./image/1.png" alt="image1" style="zoom: 25%;"/>
+<img src="./image/2.png" alt="image2" style="zoom: 25%;"/>
+<img src="./image/3.png" alt="image3" style="zoom: 25%;"/>
+<img src="./image/4.png" alt="image4" style="zoom: 25%;"/>
+<img src="./image/5.png" alt="image5" style="zoom: 25%;"/>
+<img src="./image/6.png" alt="image6" style="zoom: 25%;"/>
+<img src="./image/7.png" alt="image7" style="zoom: 25%;"/>
+<img src="./image/8.png" alt="image8" style="zoom: 25%;"/>
+<img src="./image/9.png" alt="image9" style="zoom: 25%;"/>
+<img src="./image/10.png" alt="image10" style="zoom: 25%;"/>
+<img src="./image/11.png" alt="image11" style="zoom: 25%;"/>
+<img src="./image/12.png" alt="image12" style="zoom: 25%;"/>
 
 通过上述在开发板上的验证，可以看到，该32位ALU模块的设计是正确的。
 
@@ -706,14 +706,25 @@ ALU32_tb.v:70: $stop(1) called at 500000000 (1ps)
 | DSP      |  0       |  240     |  0.00% |
 | BRAM     |  0       |  240     |  0.00% |
 
-### 2.如果比较运算直接使用组合电路比较器来实现，则 32 位ALU 电路原理图需要做哪些修改？
+### 2.如果比较运算直接使用组合电路比较器来实现，则 32 位 ALU 电路原理图需要做哪些修改？
 
-需要修改ALU32模块中的Sltctr和Sltuctr的实现，将其改为组合电路比较器的实现。
+<img src="./image/图片3.png" alt="image12" style="zoom: 67%;"/>
 
 ### 3.在32 位ALU 的基础上如何实现 64 位的ALU？
 
-在32位ALU的基础上，将其扩展为64位ALU，只需要将其中的32位数据扩展为64位数据即可。
+利用两个32位的ALU构建64位的ALU。
+
+对于加减法功能，32位的ALU输出添加cout表明进位，将高32位的ALU加法器的cin与低32位的ALU的cout连接，再将两者结果位拼接。
+
+对于逻辑运算功能，将高32位的ALU的输出与低32位的ALU的输出拼接。在拼接的过程中，需要注意的是，需要一个中间寄存器用于保存低32位ALU可能会移除的部分（左移，如果是右移则需要保存高32位ALU可能会移出的部分）。然后将这部分与高32位ALU的相应部分做或运算。（此处注意如果是算术右移需要将保存的部分与低32位ALU的高位部分做与运算）。
+
+对于无符号数小于判断功能，为高32位的ALU添加功能：两个输入相等的情况输出`0x00000002`。两个32位ALU分别比较高低32位，若高32位不是等于的情况(即`!(result_h & 0x2)`) 则将高32位的ALU输出作为结果，若高32位相等(即`!!(result_h & 0x2)`)则将低32位的ALU输出(即`result_l`)零拓展作为结果。
+对于有符号数小于判断功能，为高32位的ALU添加功能：两个输入相等的情况输出`0x00000002`。两个32位ALU分别比较高低32位，若高32位不是等于的情况(即!`(result_h & 0x2)`) 则将高32位的ALU输出作为结果，若高32位相等(即`!!(result_h & 0x2)`)则将低32位的ALU输出做逻辑非运算后的结果(即!result_l)零拓展作为结果。
+
+对于与或非以及直接输出操作数B的功能，直接将高低32位ALU的结果做位拼接即可。
 
 ### 4.查找资料说明还有哪些并行加法器的设计方法，并详细介绍其中一种方法。
 
+**选择进位加法器**：对于每一位的相加过程，分别产生一个假设$cin = 0$或$cin = 1$的结果，最终根据上一位的进位结果进行选择。在这样的加法器中，加法过程是并行的，只有通过加法器结果选择产生最终结果的过程是串行的，一定程度上提高了计算的速度。
 
+还有**Kogge-Stone Adder**等。
