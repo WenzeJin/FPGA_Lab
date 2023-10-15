@@ -21,20 +21,20 @@
 
 
 module rv32m_tb(   );
-  parameter N = 32;               // ¶¨ÒåÎ»¿í
-  reg [31:0] SEED = 2;              // ¶¨Òå²»Í¬µÄËæ»úĞòÁĞ
-  wire [N-1:0] Rd;               //ÔËËã½á¹û
-  wire Out_valid,In_error;       //ÔËËã½áÊøºÍ´íÎóÊäÈë±êÖ¾
-  reg [N-1:0]  Rs1,Rs2;         //32Î»Êı¾İÊäÈë
-  reg [2:0]   Funct3;             //¹¦ÄÜÑ¡ÔñĞÅºÅ
-  reg Clk,Rst;                        //¸´Î»ĞÅºÅ
-  reg In_valid;                   //ÊäÈëÎª1Ê±£¬±íÊ¾Êı¾İ¾ÍĞ÷£¬¿ªÊ¼ÔËËã
+  parameter N = 32;               // å®šä¹‰ä½å®½
+  reg [31:0] SEED = 2;              // å®šä¹‰ä¸åŒçš„éšæœºåºåˆ—
+  wire [N-1:0] Rd;               //è¿ç®—ç»“æœ
+  wire Out_valid,In_error;       //è¿ç®—ç»“æŸå’Œé”™è¯¯è¾“å…¥æ ‡å¿—
+  reg [N-1:0]  Rs1,Rs2;         //32ä½æ•°æ®è¾“å…¥
+  reg [2:0]   Funct3;             //åŠŸèƒ½é€‰æ‹©ä¿¡å·
+  reg Clk,Rst;                        //å¤ä½ä¿¡å·
+  reg In_valid;                   //è¾“å…¥ä¸º1æ—¶ï¼Œè¡¨ç¤ºæ•°æ®å°±ç»ªï¼Œå¼€å§‹è¿ç®—
   integer i, errors;
   reg signed [63:0]  TempMul;
   reg signed [64:0]  TempMulsu;
   reg [63:0]  TempMulu;
   reg [31:0] TempRd;
-  parameter Mul     = 3'b000,   // ¶¨Òå²»Í¬ÔËËãµÄ¿ØÖÆÂë
+  parameter Mul     = 3'b000,   // å®šä¹‰ä¸åŒè¿ç®—çš„æ§åˆ¶ç 
              Mulh    = 3'b001, 
              Mulhsu  = 3'b010, 
              Mulhu   = 3'b011, 
@@ -46,7 +46,7 @@ module rv32m_tb(   );
   initial begin : TB   // Start testing at time 0
      Clk = 0;
 	 forever 
-	#2 Clk = ~Clk;	     //Ä£ÄâÊ±ÖÓĞÅºÅ
+	#2 Clk = ~Clk;	     //æ¨¡æ‹Ÿæ—¶é’Ÿä¿¡å·
   end
 
    rv32m my_rv32m(.rd(Rd),.out_valid(Out_valid),.in_error(In_error),.clk(Clk),.rs1(Rs1),.rs2(Rs2),.funct3(Funct3),.in_valid(In_valid),.rst(~Rst)); 
@@ -55,16 +55,16 @@ module rv32m_tb(   );
     begin
     case (Funct3)
     Mul: begin 
-                 TempMul=$signed(Rs1) * $signed(Rs2);   //´ø·ûºÅÊı³Ë·¨ÔËËã
+                 TempMul=$signed(Rs1) * $signed(Rs2);   //å¸¦ç¬¦å·æ•°ä¹˜æ³•è¿ç®—
                  if (TempMul[31:0]!=Rd) 
                   begin     
-                       errors = errors + 1;
+                      errors = errors + 1;
                       $display("ERROR: Funct3,Rs1,Rs2 = %3b,%8h,%8h, want= %8h, got=%8h,err=%1b." ,
                       Funct3, Rs1, Rs2, TempMul[31:0], Rd,In_error);                 
                   end
              end
     Mulh: begin 
-                 TempMul=$signed(Rs1) * $signed( Rs2);   //´ø·ûºÅÊı³Ë·¨ÔËËã
+                 TempMul=$signed(Rs1) * $signed( Rs2);   //å¸¦ç¬¦å·æ•°ä¹˜æ³•è¿ç®—
                  if (TempMul[63:32]!=Rd) 
                   begin     
                        errors = errors + 1;
@@ -72,8 +72,8 @@ module rv32m_tb(   );
                       Funct3, Rs1, Rs2, TempMul[63:32], Rd,In_error);                 
                   end
              end
-    Mulhsu: begin                 //´ø·ûºÅÊı³ËÒÔÎŞ·ûºÅÊıÔËËã
-                 TempMulsu=$signed(Rs1) * $signed({1'b0, Rs2});   //ÎŞ·ûºÅÊı³Ë·¨
+    Mulhsu: begin                 //å¸¦ç¬¦å·æ•°ä¹˜ä»¥æ— ç¬¦å·æ•°è¿ç®—
+                 TempMulsu=$signed(Rs1) * $signed({1'b0, Rs2});   //æ— ç¬¦å·æ•°ä¹˜æ³•
                  if (TempMulsu[63:32]!=Rd)
                   begin     
                        errors = errors + 1;
@@ -81,7 +81,7 @@ module rv32m_tb(   );
                       Funct3, Rs1, Rs2, TempMulsu[63:32], Rd,In_error);                 
                   end
              end
-    Mulhu: begin                 //ÎŞ·ûºÅÊıĞ¡ÓÚ±È½ÏÔËËã
+    Mulhu: begin                 //æ— ç¬¦å·æ•°å°äºæ¯”è¾ƒè¿ç®—
                  TempMulu=Rs1 * Rs2;   
                  if (TempMulu[63:32]!=Rd) 
                   begin     
@@ -89,11 +89,9 @@ module rv32m_tb(   );
                       $display("ERROR: Funct3,Rs1,Rs2 = %3b,%8h,%8h, want= %8h, got=%8h,err=%1d." ,
                       Funct3, Rs1, Rs2, TempMulu[63:32], Rd,In_error);                 
                   end
-                  $display("want= %8h, got=%8h,err=%1b." ,
-                      TempMulu[63:32], Rd,In_error);
              end
       Div: begin 
-                 TempRd=$signed(Rs1) / $signed(Rs2);   //´ø·ûºÅÊı³ı·¨ÔËËã
+                 TempRd=$signed(Rs1) / $signed(Rs2);   //å¸¦ç¬¦å·æ•°é™¤æ³•è¿ç®—
                  if (TempRd!=Rd) 
                   begin     
                        errors = errors + 1;
@@ -102,7 +100,7 @@ module rv32m_tb(   );
                   end
              end
       Divu: begin 
-                 TempRd=Rs1 / Rs2;   //´ø·ûºÅÊı³ı·¨ÔËËã
+                 TempRd=Rs1 / Rs2;   //å¸¦ç¬¦å·æ•°é™¤æ³•è¿ç®—
                  if (TempRd!=Rd) 
                   begin     
                        errors = errors + 1;
@@ -111,7 +109,7 @@ module rv32m_tb(   );
                   end
              end
       Rem: begin 
-                 TempRd=$signed(Rs1) % $signed(Rs2);   //´ø·ûºÅÊı³ı·¨ÔËËã
+                 TempRd=$signed(Rs1) % $signed(Rs2);   //å¸¦ç¬¦å·æ•°é™¤æ³•è¿ç®—
                  if (TempRd!=Rd) 
                   begin     
                        errors = errors + 1;
@@ -120,7 +118,7 @@ module rv32m_tb(   );
                   end
              end
       Remu: begin 
-                 TempRd=Rs1 % Rs2;   //´ø·ûºÅÊı³ı·¨ÔËËã
+                 TempRd=Rs1 % Rs2;   //å¸¦ç¬¦å·æ•°é™¤æ³•è¿ç®—
                  if (TempRd!=Rd) 
                   begin     
                        errors = errors + 1;
@@ -136,10 +134,10 @@ module rv32m_tb(   );
   initial begin
      errors = 0;
            Rs1 = $random(SEED);                        // Set pattern based on seed parameter
-   for (i=0; i<100; i=i+1) begin                     //¼ÆËã10000´Î
-        Rst = 1'b0;    #2   Rst = 1'b1;               //¸´Î»ĞÅºÅÓĞĞ§
-          Rs1 = $random; Rs2= $random;             //³õÊ¼»¯Êı¾İ
-     	#2 Rst = 1'b0;	 In_valid=1'b1;               //Êı¾İ¾ÍĞ÷         
+   for (i=0; i<100; i=i+1) begin                     //è®¡ç®—10000æ¬¡
+          Rst = 1'b0;    #2   Rst = 1'b1;               //å¤ä½ä¿¡å·æœ‰æ•ˆ
+          Rs1 = $random; Rs2= $random;             //åˆå§‹åŒ–æ•°æ®
+     	#2 Rst = 1'b0;	 In_valid=1'b1;               //æ•°æ®å°±ç»ª         
 	     #2 In_valid=1'b0;
              
           Funct3 = Mul;  #150 ; checkrv32m;     

@@ -20,20 +20,20 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module div_32b_tb( );
+module div_32u_tb( );
   parameter N = 32;               // 定义位宽
   reg [31:0] SEED = 1;              // 定义不同的随机序列
      reg clk, rst;
-     reg signed [N-1:0] x, y;
+     reg [N-1:0] x, y;
      reg in_valid;
      wire [N-1:0] q,r;
      wire  out_valid;
      wire  in_error;
 
-  div_32b my_div_32b (.Q(q),.R(r),.out_valid(out_valid),.in_error(in_error),.clk(clk),.rst(~rst),.X(x),.Y(y),.in_valid(in_valid)); // 
+  div_32u my_div_32u (.Q(q),.R(r),.out_valid(out_valid),.in_error(in_error),.clk(clk),.rst(rst),.X(x),.Y(y),.in_valid(in_valid)); // 
   
     reg [N-1:0] temp_Q,temp_R;
-    integer i, errors;
+   integer i, errors;
   task checkP;
     begin
       temp_Q = x / y;
@@ -43,10 +43,8 @@ module div_32b_tb( );
         $display($time," Error: x=%d, y=%d, expected Quot= %d, Rem=%d(%h),got Quot= %d,Rem=%d(%h)",
                  x, y, temp_Q,temp_R,temp_R, q,r, r); 
         end
-        else if (out_valid) begin
         $display($time," Correct: x=%d, y=%d, expected Quot= %d, Rem=%d(%h),got Quot= %d,Rem=%d(%h)",
-                 x, y, temp_Q,temp_R,temp_R, q,r, r); 
-        end
+                 x, y, temp_Q,temp_R,temp_R, q,r, r);
     end
   endtask
 
@@ -61,7 +59,7 @@ module div_32b_tb( );
    begin	
     errors = 0;
            x = $random(SEED);                        // Set pattern based on seed parameter
-   for (i=0; i<1000; i=i+1) begin                //计算10000次
+   for (i=0; i<10000; i=i+1) begin                //计算10000次
         rst = 1'b0;
         #2
         rst = 1'b1;                             //上电后1us复位信号
@@ -75,7 +73,7 @@ module div_32b_tb( );
 	    #150;	                          // wait 150 ns, then check result
 	     checkP;
       end  
-    $display($time, " Divider32B test end. Errors %d .",errors); 
+    $display($time, " Divider32U test end. Errors %d .",errors); 
     $stop(1);          // end test
   end
 

@@ -32,82 +32,96 @@ module div_32b(
     input in_valid          //输入为1时，表示数据就绪，开始除法运算
 );
 
-    reg [5:0] cn;               //计数器
-    reg [63:0] RDIV;            //中间被除数
-    reg [31:0] TempQ;           //商
+    reg [5:0] cnt;               //计数器
+    reg [63:0] buffer;            //被除数寄存器
     reg temp_out_valid;         //输出有效信号
-    wire [31:0] diff_result;    //差值
-    wire cout;
-    wire flag;
+    reg initial_rsign;
+    reg initial_ysign;
     assign in_error = ((X == 0) || (Y == 0)); //预处理，除数和被除数异常检测报错
-    assign out_valid = in_error; //如果检测异常，则结束运算
+    assign out_valid = temp_out_valid | in_error;
+    assign Q = buffer[31:0];
+    assign R = buffer[63:32];
+    wire rsign;
+    wire ysign;
+    wire signed [31:0] y;
+    wire signed [31:0] r;
+    wire signed [31:0] q;
+    assign y = Y;
+    assign r = R;
+    assign q = Q;
+    assign rsign = buffer[63];
+    assign ysign = Y[31];
+    wire signed [31:0] diff_res, add_res, two_diff_res, two_add_res;
+    assign diff_res = r - y;
+    assign add_res = r + y;
+    wire [31:0] qplusone;
+    assign qplusone = q + 1;
+    
+    
 
-    // cn 是计数器，用于计算商的位数
     always @(posedge clk or negedge rst) begin
-        if (!rst) cn <= 0;
-        else if (in_valid) cn <= 32;
-        else if (cn != 0) cn <= cn - 1;
-    end
-
-    // adder32 是32 位加法器模块的实例化，参见实验 3 的设计
-    Adder32 my_adder(.f(diff_result),.cout(cout),.x(RDIV[63:32]),.y(Y),.sub(1'b1)); //减法，当cout=0 时，表示有借位。
-    divid_test test(.RDIV(RDIV[63:32]),.Y(Y),.div_result(diff_result),.valid(flag));
-
-    // 除法运算
-    always @(posedge clk or  negedge rst) begin
-        if (!rst) RDIV = 0;  //复位时，中间被除数清零
-        else if (in_valid) begin 
-            RDIV <= {X[31] ? 32'b1 : 32'b0, X};  //把被除数赋值给中间被除数,在这里要进行符号扩展
-            TempQ <= 32'b0;   //把商清零
-            temp_out_valid <= 1'b0; //把输出有效信号清零
+        if(!rst) begin
+            buffer <= 0;
+            cnt <= 0;
+            temp_out_valid <= 0;
         end
-        else if ((cn >= 0)&&(!out_valid)) begin
-            if(flag) begin //判断是否有借位，flag=1，表示够减，没有借位
-                RDIV[63:32] <= diff_result[31:0]; //把差值赋值到中间被除数的高 32 位
-                TempQ[cn] <= 1'b1; //商在该位置 1
+        else if(in_valid) begin
+            buffer <= {{32{X[31]}}, X};
+            cnt <= 34;
+            temp_out_valid <= 0;
+            initial_rsign = X[31];
+            initial_ysign = Y[31];
+        end
+        else if(cnt == 34) begin
+            if(rsign == ysign) begin
+                if(diff_res[31] == ysign) begin
+                    buffer <= {diff_res[30:0], buffer[31:0], 1'b1};
+                end else begin
+                    buffer <= {diff_res[30:0], buffer[31:0], 1'b0};
+                end
+            end else begin
+                if(add_res[31] == ysign) begin
+                    buffer <= {add_res[30:0], buffer[31:0], 1'b1};
+                end else begin
+                    buffer <= {add_res[30:0], buffer[31:0], 1'b0};
+                end
             end
-            if(cn>0) 
-                RDIV=RDIV <<1;  //中间被除数左移 1 位
-            else 
-                temp_out_valid <=1'b1;  //输出有效信号
+            cnt <= cnt - 1;
         end
-    end
-
-    // 输出
-    assign out_valid = temp_out_valid;
-    assign Q = TempQ;
-    assign R = RDIV[63:32];
-
-
-endmodule
-
-
-module divid_test (
-    input [31:0] RDIV,
-    input [31:0] Y,
-    input [31:0] div_result,
-    output valid
-);
-    wire Rsign;
-    wire Ysign;
-    wire divsign;
-    reg r_valid;
-    assign Rsign = RDIV[31];
-    assign Ysign = Y[31];
-    assign divsign = div_result[31];
-    assign valid = r_valid;
-
-    always @(*) begin
-        case ({Rsign, Ysign, divsign}) 
-            3'b000: r_valid = 1;
-            3'b001: r_valid = 0;
-            3'b010: r_valid = 1;
-            3'b011: r_valid = 0;
-            3'b100: r_valid = 0;
-            3'b101: r_valid = 1;
-            3'b110: r_valid = 0;
-            3'b111: r_valid = 1;
-        endcase
+        else if(cnt > 2) begin
+            if(buffer[0]) begin
+                buffer <= {diff_res[30:0], buffer[31:0], (diff_res[31] == ysign? 1'b1 : 1'b0)};
+            end else begin
+                buffer <= {add_res[30:0], buffer[31:0], (add_res[31] == ysign? 1'b1 : 1'b0)};
+            end
+            cnt <= cnt - 1;
+        end
+        else if(cnt == 2) begin
+            if(buffer[0]) begin
+                buffer <= {diff_res[31:0], buffer[30:0], (diff_res[31] == ysign || diff_res == 0? 1'b1 : 1'b0)};
+            end else begin
+                buffer <= {add_res[31:0], buffer[30:0], (add_res[31] == ysign || add_res == 0? 1'b1 : 1'b0)};
+            end
+            cnt <= cnt - 1;
+        end
+        else if(cnt == 1) begin
+            if(initial_rsign == initial_ysign || r == 0) begin    //商不需要修正
+                if(rsign == initial_rsign || r == 0) begin        //余数不需要修正
+                    buffer <= buffer;
+                end else begin
+                    buffer <= {add_res, buffer[31:0]};
+                end
+            end 
+            else begin
+                if(rsign == initial_rsign || r == 0) begin        //余数不需要修正
+                    buffer <= {buffer[63:32], qplusone};
+                end else begin
+                    buffer <= {diff_res, qplusone};
+                end
+            end
+            cnt <= cnt - 1;
+            temp_out_valid <= 1;
+        end
     end
 
 endmodule

@@ -22,14 +22,14 @@
 
 module mul_32u_tb( );
   parameter N = 32;               // 定义位宽
-  parameter SEED = 1;              // 定义不同的随机序列
+  reg [31:0] SEED = 1;              // 定义不同的随机序列
      reg clk, rst;
      reg [N-1:0] x, y;
      reg in_valid;
      wire [2*N-1:0] p;
      wire  out_valid;
 
-  mul_32u my_mul_32u (.clk(clk),.rst(rst),.x(x),.y(y),.in_valid(in_valid),.p(p),.out_valid(out_valid)); // 
+  mul_32u my_mul_32u (.clk(clk),.rst(~rst),.x(x),.y(y),.in_valid(in_valid),.p(p),.out_valid(out_valid)); // 
   
     reg [2*N-1:0] temp_P;
    integer i, errors;
@@ -40,7 +40,10 @@ module mul_32u_tb( );
         errors=errors+1;
         $display($time," Error: x=%8h, y=%8h, expected %16h (%d), got %16h (%d)",
                  x, y, temp_P, temp_P, p, p); 
-        end
+      end else begin
+        $display($time," Correct: x=%8h, y=%8h, expected %16h (%d), got %16h (%d)",
+                 x, y, temp_P, temp_P, p, p);
+      end 
     end
   endtask
 

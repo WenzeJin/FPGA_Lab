@@ -41,6 +41,10 @@ module mul_32b_tb(   );
         $display($time," Error: x=%8h, y=%8h, expected %16h (%d), got %16h (%d)",
                  x, y, temp_P, temp_P, p, p); 
         end
+        else begin
+        $display($time," Correct: x=%8h, y=%8h, expected %16h (%d), got %16h (%d)",
+                 x, y, temp_P, temp_P, p, p); 
+        end
     end
   endtask
 
