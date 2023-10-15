@@ -130,7 +130,6 @@ module rv32m_tb( );
                 Funct3, Rs1, Rs2, TempRd, Rd,In_error);
             end
         end
-                
         endcase
         end
     endtask
