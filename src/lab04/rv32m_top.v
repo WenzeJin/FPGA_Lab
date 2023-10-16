@@ -59,7 +59,4 @@ module rv32m_top(
         dis_pos <= dis_cnt;
         dis_cur <= display_buffer[dis_cnt];
     end
-
-
-
 endmodule

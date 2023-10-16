@@ -77,6 +77,4 @@ module div_32u(
             end
         end
     end
-
-
 endmodule
