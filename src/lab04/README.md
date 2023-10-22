@@ -1026,14 +1026,14 @@ RV32M test done. Errors: 0.
 
 通过综合，实现，生成比特流操作，将最终生成的比特流文件下载到开发板上，进行验证。验证结果如下，因为线下验收已经通过，只展示部分运行时状态：
 
-![1](lab04/image/1.jpg)
-![2](lab04/image/2.jpg)
-![3](lab04/image/3.jpg)
-![4](lab04/image/4.jpg)
-![5](lab04/image/5.jpg)
-![6](lab04/image/6.jpg)
-![7](lab04/image/7.jpg)
-![8](lab04/image/8.jpg)
+![1](image/1.jpg)
+![2](image/2.jpg)
+![3](image/3.jpg)
+![4](image/4.jpg)
+![5](image/5.jpg)
+![6](image/6.jpg)
+![7](image/7.jpg)
+![8](image/8.jpg)
 
 ## 实验总结
 
