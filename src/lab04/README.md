@@ -1045,7 +1045,7 @@ RV32M test done. Errors: 0.
 
 ### 1. 分析rv32m模块的资源占用和性能特点。
 
-TODO
+![ana1](image/ana1.png)
 
 ### 2. 阐述浮点数的乘除法如何实现？
 
