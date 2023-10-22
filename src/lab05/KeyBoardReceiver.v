@@ -22,52 +22,95 @@
 module KeyBoardReceiver(
     output [31:0] keycodeout,           //接收到连续4个键盘扫描码
     output ready,                     //数据就绪标志位
+    output F0,
+    output E0,
     input clk,                        //系统时钟 
     input kb_clk,                    //键盘 时钟信号
     input kb_data                    //键盘 串行数据
     );
-    wire kclkf, kdataf;
+
+
     reg [7:0]datacur;              //当前扫描码
-    reg [7:0]dataprev;            //上一个扫描码
     reg [3:0]cnt;                //收到串行位数
     reg [31:0]keycode;            //扫描码
-    reg flag;                     //接受1帧数据
     reg readyflag;
+
+    reg F0Prefix;
+    reg E0Prefix;
+    reg pressed[0:255];
+    reg E0pressed[0:255];
+    reg E0_out;
+    reg F0_out;
+    assign E0 = E0_out;
+    assign F0 = F0_out;
+
+
 //    reg error;                   //错误标志位
     initial begin                 //初始化
         keycode[7:0]<=8'b00000000;
         cnt<=4'b0000;
     end
-    debouncer debounce( .clk(clk), .I0(kb_clk), .I1(kb_data), .O0(kclkf), .O1(kdataf));  //消除按键抖动
-    always@(negedge(kclkf))begin
-     case(cnt)
-            0:  readyflag<=1'b0;                       //开始位
-            1:datacur[0]<=kdataf;
-            2:datacur[1]<=kdataf;
-            3:datacur[2]<=kdataf;
-            4:datacur[3]<=kdataf;
-            5:datacur[4]<=kdataf;
-            6:datacur[5]<=kdataf;
-            7:datacur[6]<=kdataf;
-            8:datacur[7]<=kdataf;
-            9:flag<=1'b1;         //已接收8位有效数据
-            10:flag<=1'b0;       //结束位
-          endcase
+    //debouncer debounce( .clk(clk), .I0(kb_clk), .I1(kb_data), .O0(kclkf), .O1(kdataf));  //消除按键抖动
+    always@(posedge kb_clk)begin
+        case(cnt)
+            0:readyflag<=1'b0;                       //开始位
+            1:datacur[0]<=kb_data;
+            2:datacur[1]<=kb_data;
+            3:datacur[2]<=kb_data;
+            4:datacur[3]<=kb_data;
+            5:datacur[4]<=kb_data;
+            6:datacur[5]<=kb_data;
+            7:datacur[6]<=kb_data;
+            8:datacur[7]<=kb_data;
+            9:begin
+                if (E0Prefix) begin
+                    if (F0Prefix) begin
+                        F0Prefix <= 0;
+                        E0Prefix <= 0;
+                        E0pressed[datacur] <= 0;    //release a key with E0
+                        E0_out <= 1; F0_out <= 1; keycode <= {keycode[23:0], datacur}; 
+                        readyflag <= 1;
+                        //push the release key into keybuffer with signal E0 F0
+                    end else begin
+                        E0Prefix <= 0;
+                        E0pressed[datacur] <= 1;
+                        if (!E0pressed[datacur]) begin
+                            E0pressed[datacur] <= 1;
+                            E0_out <= 1; F0_out <= 0; keycode <= {keycode[23:0], datacur};
+                            readyflag <= 1;
+                        end
+                    end
+                end else if (F0Prefix) begin
+                    if (datacur == 8'hE0) begin
+                        E0Prefix <= 1;
+                    end else begin
+                        F0Prefix <= 0;
+                        pressed[datacur] <= 0;
+                        E0_out <= 0; F0_out <= 1; keycode <= {keycode[23:0], datacur}; 
+                        readyflag <= 1;
+                    end
+                end else begin
+                    if (datacur == 8'hF0) begin
+                        F0Prefix <= 1;
+                    end else if (datacur == 8'hE0) begin
+                        E0Prefix <= 1;
+                    end else begin
+                        if (!pressed[datacur]) begin
+                            pressed[datacur] <= 1;
+                            E0_out <= 0; F0_out <= 0; keycode <= {keycode[23:0], datacur};
+                            readyflag <= 1;
+                        end
+                    end
+                end
+            end
+            10:readyflag <= 1'b0;       //结束位
+        endcase
         if(cnt<=9) cnt<=cnt+1;
         else if(cnt==10)  cnt<=0;
     end
-    always @(posedge flag)begin
-        if (dataprev!=datacur)begin           //去除重复按键数据
-            keycode[31:24]<=keycode[23:16];
-            keycode[23:16]<=keycode[15:8];
-            keycode[15:8]<=dataprev;
-            keycode[7:0]<=datacur;
-            dataprev<=datacur;
-            readyflag<=1'b1;              //数据就绪标志位置1
-        end
-    end
-    assign keycodeout=keycode;
-    assign ready=readyflag;    
+
+    assign keycodeout = keycode;
+    assign ready = readyflag;    
 endmodule
 
 module debouncer(
