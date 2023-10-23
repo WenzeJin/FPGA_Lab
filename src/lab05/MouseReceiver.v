@@ -35,9 +35,9 @@ module MouseReceiver(
     reg [7:0]datacur;              //当前扫描码
     reg [3:0]cnt;                //收到串行位数
     reg [1:0]bytecnt;
-    reg INIT = 0;
-    reg ID = 0;
-    reg scroll = 0;
+    reg INIT;
+    reg ID;
+    reg scroll;
     reg readyflag;
     
     reg XOVF;
@@ -65,7 +65,7 @@ module MouseReceiver(
     );
 
 
-    always@(posedge PS2_CLK)begin
+    always @(posedge PS2_CLK) begin
         case(cnt)
             0:readyflag<=1'b0;                       //开始位
             1:datacur[0]<=PS2_DATA;
@@ -80,6 +80,8 @@ module MouseReceiver(
                 if (!INIT) begin
                     if (datacur == 8'hAA) begin
                         INIT <= 1;
+                    end else begin
+                        INIT <= 0;
                     end
                 end else if (!ID) begin
                     ID <= 1;
@@ -159,7 +161,7 @@ module seg7decimal(
 		3:digit = {1'b0, real_y[7:4]}; // s is 11 -->3 ;  digit gets assigned 4 bit value assigned to x[15:12]
 		4:digit = y[8] ? 'h11: 'h10; // s is 00 -->0 ;  digit gets assigned 4 bit value assigned to x[3:0]
 		5:digit = {1'b0, real_x[3:0]}; // s is 01 -->1 ;  digit gets assigned 4 bit value assigned to x[7:4]
-		6:digit = {1'b0, real_x[7:4]}; // s is 10 -->2 ;  digit gets assigned 4 bit value assigned to x[11:8
+		6:digit = {1'b0, real_x[7:4]}; // s is 10 -->2 ;  digit gets assigned 4 bit value assigned to x[11:8]
 		7:digit = x[8] ? 'h11: 'h10; // s is 11 -->3 ;  digit gets assigned 4 bit value assigned to x[15:12]
 		default:digit = x[3:0];
 		endcase

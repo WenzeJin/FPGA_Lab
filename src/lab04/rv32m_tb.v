@@ -15,12 +15,12 @@ module rv32m_tb( );
     reg [63:0]  TempMulu;
     reg [31:0] TempRd;
     parameter Mul   = 3'b000,   // 定义不同运算的控制码
-            Mulh    = 3'b001, 
-            Mulhsu  = 3'b010, 
-            Mulhu   = 3'b011, 
-            Div     = 3'b100, 
-            Divu    = 3'b101, 
-            Rem     = 3'b110, 
+            Mulh    = 3'b001,
+            Mulhsu  = 3'b010,
+            Mulhu   = 3'b011,
+            Div     = 3'b100,
+            Divu    = 3'b101,
+            Rem     = 3'b110,
             Remu    = 3'b111;
 
     initial begin : TB   // Start testing at time 0
